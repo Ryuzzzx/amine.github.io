@@ -40,11 +40,6 @@
     ul.rules{padding-left:18px;margin:0 0 14px 0;color:var(--muted)}
     .info{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;font-size:14px}
 
-    .controls{display:flex;gap:10px;align-items:center;margin-top:14px}
-    .btn{padding:10px 14px;border-radius:8px;border:0;background:var(--accent);color:#111;font-weight:700;cursor:pointer}
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--text)}
-    .volume-slider{flex:1}
-
     footer{margin-top:12px;color:var(--muted);font-size:12px}
 
     @media (max-width:800px){
@@ -70,12 +65,6 @@
         <div class="status">Initialisation...</div>
       </div>
 
-      <div class="controls">
-        <button class="btn secondary" id="rulesBtn">Voir les règles</button>
-        <!-- Slider volume -->
-        <input type="range" id="volumeControl" class="volume-slider" min="0" max="1" step="0.01" value="0.5">
-      </div>
-
       <footer>IP: <strong>play-02.wasied.com:27025</strong> · Map: <span id="mapName">gm_sunset</span></footer>
     </div>
 
@@ -92,13 +81,14 @@
         <strong>Conseils :</strong>
         <div style="margin-top:8px;font-size:13px;color:var(--muted)">
           - Pour un meilleur affichage, utilise un navigateur moderne.<br>
-          - Si la page reste bloquée, vérifie que ton serveur pointe vers une URL HTTPS valide.
+          - Si la page reste bloquée, vérifie que ton serveur pointe vers une URL HTTPS valide.<br>
+          - Appuie sur <b>Espace</b> pour couper ou remettre la musique.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- audio (autoplay + loop avec volume réglable) -->
+  <!-- audio autoplay + loop -->
   <audio id="bgAudio" src="https://files.catbox.moe/4zt05m.mp3" autoplay loop></audio>
 
   <script>
@@ -107,18 +97,20 @@
       const status = document.querySelector('.status');
       const mapNameEl = document.getElementById('mapName');
       const audio = document.getElementById('bgAudio');
-      const volumeControl = document.getElementById('volumeControl');
       let progress = 0;
 
       // volume par défaut
       audio.volume = 0.5;
 
-      // slider volume
-      volumeControl.addEventListener('input', (e)=>{
-        audio.volume = e.target.value;
+      // mute/demute avec espace
+      document.addEventListener('keydown', (e)=>{
+        if(e.code === "Space"){
+          e.preventDefault();
+          audio.muted = !audio.muted;
+        }
       });
 
-      // animation barre de chargement
+      // animation barre
       function step(){
         if(progress >= 100) { status.textContent = 'Prêt — connecte toi !'; return }
         const inc = Math.floor(Math.random()*12) + 4;
@@ -129,12 +121,6 @@
         setTimeout(step, delay);
       }
       setTimeout(step, 700);
-
-      // bouton règles (scroll vers colonne droite)
-      document.getElementById('rulesBtn').addEventListener('click', ()=>{
-        const right = document.querySelector('.right');
-        right.scrollIntoView({behavior:'smooth'});
-      });
 
       // récup nom map via query string
       const params = new URLSearchParams(location.search);
