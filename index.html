@@ -9,31 +9,48 @@
   <style>
     :root{
       --accent:#ff7a00;
+      --dark:#0b0b0b;
+      --glass: rgba(255,255,255,0.06);
       --text: #ececec;
       --muted: rgba(236,236,236,0.7);
     }
-    html,body{height:100%;margin:0;font-family: 'Montserrat', system-ui, sans-serif;color:var(--text);overflow:hidden}
+    html,body{height:100%;margin:0;font-family: 'Montserrat', system-ui, sans-serif;color:var(--text)}
 
-    /* --- FONDS SUPERPOSÉS --- */
-    .bg-slideshow {
-      position:fixed;inset:0;
-      z-index:-2;
+    /* centrage du contenu */
+    body{
+      display:flex;
+      align-items:center;
+      justify-content:center;
       overflow:hidden;
+      position:relative;
     }
-    .bg-slide {
-      position:absolute;inset:0;
+
+    /* double calques pour le diaporama */
+    .bg, .bg2{
+      position:absolute;
+      inset:0;
       background-size:cover;
-      background-position:center;
+      background-position:center center;
+      background-attachment:fixed;
       transition:opacity 1s ease-in-out;
-      opacity:0;
     }
-    .bg-slide.active { opacity:1; }
+    .bg{opacity:1;}
+    .bg2{opacity:0;}
 
     /* overlay sombre */
-    .bg-overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.6));backdrop-filter: blur(2px);z-index:-1}
+    .bg-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.6));backdrop-filter: blur(2px);}
 
-    /* contenu */
-    .container{position:relative;z-index:2;width:min(1100px,95%);display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:center}
+    .container{
+      position:relative;
+      z-index:2;
+      width:min(1100px,95%);
+      display:grid;
+      grid-template-columns:2fr 1fr;
+      gap:20px;
+      align-items:center;
+      max-height:90vh;
+    }
+
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:24px;box-shadow: 0 6px 30px rgba(0,0,0,0.6);}
 
     .left{padding:30px}
@@ -65,17 +82,13 @@
   </style>
 </head>
 <body>
-  <!-- deux calques pour le diaporama -->
-  <div class="bg-slideshow">
-    <div class="bg-slide active" style="background-image:url('https://files.catbox.moe/1o6jvi.png')"></div>
-    <div class="bg-slide" style="background-image:url('https://files.catbox.moe/vh3lce.png')"></div>
-  </div>
+  <div class="bg"></div>
+  <div class="bg2"></div>
   <div class="bg-overlay"></div>
 
   <div class="container">
     <div class="card left">
       <div class="logo">
-        <!-- tu peux changer ce logo si tu veux -->
         <img src="https://files.catbox.moe/n0vpt2.png" alt="Logo serveur" onerror="this.style.display='none'">
         <div>
           <div class="title">TLS - NarutoRp</div>
@@ -119,48 +132,64 @@
 
   <script>
     (function(){
-      // --- barre de chargement fake ---
       const bar = document.querySelector('.bar-inner');
       const status = document.querySelector('.status');
-      const mapNameEl = document.getElementById('mapName');
       let progress = 0;
+
       function step(){
         if(progress >= 100) { status.textContent = 'Prêt — connecte toi !'; return }
         const inc = Math.floor(Math.random()*12) + 4;
         progress = Math.min(100, progress + inc);
         bar.style.width = progress + '%';
         status.textContent = 'Chargement ' + Math.floor(progress) + '%';
-        setTimeout(step, 350 + Math.random()*900);
+        const delay = 350 + Math.random()*900;
+        setTimeout(step, delay);
       }
       setTimeout(step, 700);
 
-      // --- diaporama fluide ---
-      const slides = document.querySelectorAll('.bg-slide');
-      const urls = [
+      // --- Diaporama avec fondu ---
+      const images = [
         "https://files.catbox.moe/1o6jvi.png",
         "https://files.catbox.moe/vh3lce.png",
         "https://files.catbox.moe/aly30w.png"
       ];
-      let current = 0;
+      let index = 0;
+      const bg1 = document.querySelector('.bg');
+      const bg2 = document.querySelector('.bg2');
+      let showingBg1 = true;
 
-      // précharger toutes les images
-      urls.forEach(u => { const i = new Image(); i.src = u; });
+      // préchargement
+      const preload = [];
+      images.forEach(src=>{
+        const img = new Image();
+        img.src = src;
+        preload.push(img);
+      });
+
+      // image de départ
+      bg1.style.backgroundImage = `url('${images[0]}')`;
 
       setInterval(()=>{
-        const next = (current+1) % urls.length;
-        slides[next].style.backgroundImage = `url('${urls[next]}')`;
-        slides[current].classList.remove("active");
-        slides[next].classList.add("active");
-        current = next;
-      }, 4000);
+        index = (index+1) % images.length;
+        if(showingBg1){
+          bg2.style.backgroundImage = `url('${images[index]}')`;
+          bg2.style.opacity = 1;
+          bg1.style.opacity = 0;
+        } else {
+          bg1.style.backgroundImage = `url('${images[index]}')`;
+          bg1.style.opacity = 1;
+          bg2.style.opacity = 0;
+        }
+        showingBg1 = !showingBg1;
+      },4000);
 
-      // --- audio ---
+      // --- Audio ---
       const audio = document.getElementById('bgAudio');
       const playBtn = document.getElementById('playBtn');
       playBtn.addEventListener('click', ()=>{
-        if(!audio.src){ alert('Aucune musique définie — remplace TODO_REPLACE_AUDIO_URL'); return }
+        if(!audio.src){ alert('Aucune musique définie — remplace TODO_REPLACE_AUDIO_URL dans le HTML.'); return }
         if(audio.paused){
-          audio.play().catch(()=>alert('Lecture bloquée — autorise le son'));
+          audio.play().catch(()=>{ alert('Lecture bloquée — autorise le son dans ton navigateur / GMod'); });
           playBtn.textContent = '⏸ Pause';
         } else {
           audio.pause();
@@ -170,13 +199,9 @@
 
       // bouton règles
       document.getElementById('rulesBtn').addEventListener('click', ()=>{
-        document.querySelector('.right').scrollIntoView({behavior:'smooth'});
+        const right = document.querySelector('.right');
+        right.scrollIntoView({behavior:'smooth'});
       });
-
-      // map depuis l’URL
-      const params = new URLSearchParams(location.search);
-      const map = params.get('map');
-      if(map) mapNameEl.textContent = map;
     })();
   </script>
 </body>
