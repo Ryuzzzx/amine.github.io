@@ -16,7 +16,6 @@
     }
     html,body{height:100%;margin:0;font-family: 'Montserrat', system-ui, sans-serif;color:var(--text)}
 
-    /* centrage du contenu */
     body{
       display:flex;
       align-items:center;
@@ -25,7 +24,6 @@
       position:relative;
     }
 
-    /* double calques pour le diaporama */
     .bg, .bg2{
       position:absolute;
       inset:0;
@@ -37,7 +35,6 @@
     .bg{opacity:1;}
     .bg2{opacity:0;}
 
-    /* overlay sombre */
     .bg-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.6));backdrop-filter: blur(2px);}
 
     .container{
@@ -149,9 +146,9 @@
 
       // --- Diaporama avec fondu ---
       const images = [
-        "https://files.catbox.moe/1o6jvi.png",
-        "https://files.catbox.moe/vh3lce.png",
-        "https://files.catbox.moe/aly30w.png"
+        "https://i.imgur.com/5mGqsnz.jpg",
+        "https://i.imgur.com/7mp5HF8.jpg",
+        "https://i.imgur.com/2zRSykN.jpg"
       ];
       let index = 0;
       const bg1 = document.querySelector('.bg');
@@ -159,14 +156,11 @@
       let showingBg1 = true;
 
       // préchargement
-      const preload = [];
       images.forEach(src=>{
         const img = new Image();
         img.src = src;
-        preload.push(img);
       });
 
-      // image de départ
       bg1.style.backgroundImage = `url('${images[0]}')`;
 
       setInterval(()=>{
