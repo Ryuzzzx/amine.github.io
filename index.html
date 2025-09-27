@@ -1,0 +1,181 @@
+<!--
+  Fichier prêt à l'emploi pour un LoadingURL Garry's Mod sur le thème "Naruto".
+  Instructions rapides :
+   1) Remplace les URLs de l'image de fond et du logo (voir TODO ci-dessous)
+   2) Place ce fichier index.html dans un dossier (ex: /loading_naruto/)
+   3) Héberge sur un site en HTTPS (GitHub Pages, Netlify, etc.)
+   4) Dans server.cfg : sv_loadingurl "https://ton-domaine.com/loading_naruto/"
+
+  Remarques :
+   - Utilise TES images ou des assets libres de droits (évite d'utiliser des images protégées
+     sans autorisation). Le style est inspiré de Naruto (couleurs orange/noir), mais ne contient
+     aucune image dessinée du personnage : remplace le background par ton visuel.
+   - L'audio n'est pas autoplay (les navigateurs/GMod bloquent l'autoplay). Il y a un bouton "Play".
+-->
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chargement — Serveur Naruto</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --accent:#ff7a00; /* orange Naruto */
+      --dark:#0b0b0b;
+      --glass: rgba(255,255,255,0.06);
+      --text: #ececec;
+      --muted: rgba(236,236,236,0.7);
+    }
+    html,body{height:100%;margin:0;font-family: 'Montserrat', system-ui, sans-serif;color:var(--text)}
+    body{
+      background-image: url('https://files.catbox.moe/cuqaak.webp'); /* première image */
+      background-size: cover;background-position:center center;background-attachment:fixed;
+      display:flex;align-items:center;justify-content:center;
+      transition: background-image 1s ease-in-out; /* transition douce */
+    }
+    /* léger overlay sombre */
+    .bg-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.6));backdrop-filter: blur(2px);}
+    .container{position:relative;z-index:2;width:min(1100px,95%);display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:center}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:24px;box-shadow: 0 6px 30px rgba(0,0,0,0.6);}
+
+    /* gauche : logo + barre */
+    .left{padding:30px}
+    .logo{display:flex;gap:16px;align-items:center}
+    .logo img{height:90px;width:auto;border-radius:8px;box-shadow: 0 6px 18px rgba(0,0,0,0.5)}
+    .title{font-family:'Roboto Slab', serif;font-size:28px}
+    .subtitle{color:var(--muted);margin-top:4px;font-size:13px}
+
+    .progress{margin-top:26px}
+    .progress .bar{height:18px;width:100%;background:rgba(255,255,255,0.06);border-radius:9px;overflow:hidden}
+    .progress .bar-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--accent), #ffb84d);border-radius:9px;transition:width 400ms ease}
+    .status{margin-top:8px;font-size:13px;color:var(--muted)}
+
+    /* droite : règles + infos */
+    .right{padding:18px}
+    h3{margin:0 0 12px 0;font-size:18px}
+    ul.rules{padding-left:18px;margin:0 0 14px 0;color:var(--muted)}
+    .info{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;font-size:14px}
+
+    .controls{display:flex;gap:10px;align-items:center;margin-top:14px}
+    .btn{padding:10px 14px;border-radius:8px;border:0;background:var(--accent);color:#111;font-weight:700;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--text)}
+
+    footer{margin-top:12px;color:var(--muted);font-size:12px}
+
+    /* responsive */
+    @media (max-width:800px){
+      .container{grid-template-columns:1fr}
+      .logo img{height:70px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-overlay"></div>
+  <div class="container">
+    <div class="card left">
+      <div class="logo">
+        <!-- TODO: Remplace par ton logo (HTTPS). Exemple: https://ton-site.com/assets/logo.png -->
+        <img src="https://files.catbox.moe/n0vpt2.png" alt="Logo serveur" onerror="this.style.display='none'">
+        <div>
+          <div class="title">TLS • Naruto RP</div>
+          <div class="subtitle">Bienvenue, prépare ta mission... Chargement des scripts & textures</div>
+        </div>
+      </div>
+
+      <div class="progress">
+        <div class="bar"><div class="bar-inner"></div></div>
+        <div class="status">Initialisation...</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="playBtn">▶ Lecture musique</button>
+        <button class="btn secondary" id="rulesBtn">Voir les règles</button>
+      </div>
+
+      <footer>IP: <strong>play-02.wasied.com:27025</strong> · Map: <span id="mapName">gm_sunset</span></footer>
+    </div>
+
+    <div class="card right">
+      <h3>Règles rapides</h3>
+      <ul class="rules">
+        <li>Respecte le RP et les autres joueurs.</li>
+        <li>Pas de cheat / exploit.</li>
+        <li>Pas d'insultes racistes / homophobes.</li>
+        <li>Utilise les commandes correctement.</li>
+      </ul>
+
+      <div class="info">
+        <strong>Conseils :</strong>
+        <div style="margin-top:8px;font-size:13px;color:var(--muted)">
+          - Pour un meilleur affichage, utilise un navigateur moderne.<br>
+          - Si la page reste bloquée, vérifie que ton serveur pointe vers une URL HTTPS valide.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- audio (place une URL HTTPS vers un .mp3 si tu veux) -->
+  <audio id="bgAudio" src="TODO_REPLACE_AUDIO_URL" preload="none"></audio>
+
+  <script>
+    (function(){
+      // Animation barre de chargement
+      const bar = document.querySelector('.bar-inner');
+      const status = document.querySelector('.status');
+      const mapNameEl = document.getElementById('mapName');
+      let progress = 0;
+
+      function step(){
+        if(progress >= 100) { status.textContent = 'Prêt — connecte toi !'; return }
+        const inc = Math.floor(Math.random()*12) + 4;
+        progress = Math.min(100, progress + inc);
+        bar.style.width = progress + '%';
+        status.textContent = 'Chargement ' + Math.floor(progress) + '%';
+        const delay = 350 + Math.random()*900;
+        setTimeout(step, delay);
+      }
+      setTimeout(step, 700);
+
+      // --- Diaporama d'images de fond ---
+      const images = [
+        "https://files.catbox.moe/cuqaak.webp",
+        "https://files.catbox.moe/vh3lce.png",
+        "https://files.catbox.moe/aly30w.png"
+      ];
+      let index = 0;
+      setInterval(()=>{
+        index = (index + 1) % images.length;
+        document.body.style.backgroundImage = `url('${images[index]}')`;
+      }, 4000);
+
+      // --- Audio ---
+      const audio = document.getElementById('bgAudio');
+      const playBtn = document.getElementById('playBtn');
+      playBtn.addEventListener('click', ()=>{
+        if(!audio.src){ alert('Aucune musique définie — remplace TODO_REPLACE_AUDIO_URL dans le HTML.'); return }
+        if(audio.paused){
+          audio.play().catch(()=>{ alert('Lecture bloquée — autorise le son dans ton navigateur / GMod'); });
+          playBtn.textContent = '⏸ Pause';
+        } else {
+          audio.pause();
+          playBtn.textContent = '▶ Lecture musique';
+        }
+      });
+
+      // Bouton règles (scroll vers la droite sur mobile)
+      document.getElementById('rulesBtn').addEventListener('click', ()=>{
+        const right = document.querySelector('.right');
+        right.scrollIntoView({behavior:'smooth'});
+      });
+
+      // Nom de la map depuis l'URL
+      const params = new URLSearchParams(location.search);
+      const map = params.get('map');
+      if(map) mapNameEl.textContent = map;
+    })();
+  </script>
+</body>
+</html>
